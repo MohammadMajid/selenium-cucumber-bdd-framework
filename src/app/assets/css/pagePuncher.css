@@ -1,0 +1,154 @@
+body {
+	font-family: 'Merriweather Sans', sans-serif;
+	background-color: #F0F0F0;
+}
+
+#header {
+	border: 1px solid #C0C0C0;
+	background-color:white;
+	text-align:center;
+}
+
+#data {
+	background-color:white;
+    border: 1px solid #C0C0C0;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+#loginCard {
+	float: none;
+	margin-top:3%;
+    margin-left: auto;
+    margin-right: auto;
+	text-align:center;
+	max-width:90%;
+	max-height:30%;
+	padding-bottom:3%;
+	padding-top:1%;
+	background: white;
+	border: 1px solid #C0C0C0;
+	display:block;
+	border-radius: 2px;
+}
+
+#loginCard p {
+	text-align:left;
+	font-style: bold;
+}
+
+#loginCard input {
+	border: 1px solid #C0C0C0;
+	border-radius: 2px;
+	height:10%;
+}
+
+#loginCard img {
+	max-width:100%;
+}
+
+#btnLogin {
+	margin-top:2%;
+	width:100%;
+}
+
+#btnDelete{
+	margin-right:15%;
+}
+
+#btnDelete:hover {
+	color:#FFA500;
+	cursor:pointer;
+	-o-transition:.25s;
+	-ms-transition:.25s;
+	-moz-transition:.25s;
+	-webkit-transition:.25s;
+	transition:.25s;
+}
+
+#btnEdit:hover {
+	color:#FFA500;
+	cursor:pointer;
+	-o-transition:.25s;
+	-ms-transition:.25s;
+	-moz-transition:.25s;
+	-webkit-transition:.25s;
+	transition:.25s;
+}
+
+#btnAddEmployee {
+	margin-top:2%;
+}
+
+#btnLogin {
+	background-color:#008080;
+	border-color:#008080;
+	font-size:1em;
+}
+
+#btnLogin:hover {
+	background-color:#00B3B3;
+	border-color:#00B3B3;
+}
+
+.btn.btn-primary{
+	background-color:#008080;
+	border-color:#008080;
+}
+
+.btn.btn-primary:hover {
+	cursor:pointer;
+	-o-transition:.25s;
+	-ms-transition:.25s;
+	-moz-transition:.25s;
+	-webkit-transition:.25s;
+	transition:.25s;
+	background-color:#00B3B3;
+	border-color:#00B3B3;
+}
+
+.btn.btn-default:hover {
+	cursor:pointer;
+	-o-transition:.25s;
+	-ms-transition:.25s;
+	-moz-transition:.25s;
+	-webkit-transition:.25s;
+	transition:.25s;
+	color: #ffffff;
+	background-color: #006dcc;
+	border-color: #006dcc;
+}
+
+#uselessBlueHeader {
+	width:100%;
+	height:45px;
+	border:1px solid #ffffff;
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,f6f6f6+47,ededed+100;White+3D+%231 */
+	background: #ffffff; /* Old browsers */
+	background: -moz-linear-gradient(top,  #ffffff 0%, #f6f6f6 47%, #ededed 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(47%,#f6f6f6), color-stop(100%,#ededed)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+}
+
+#validation-errors {
+	width:100%;
+	background-color:#CC3300;
+	color:white;
+	text-align:center;
+	font-style: italic;
+	font-size: 1.25em;
+	padding-top:none;
+	margin-top:none;
+	padding-bottom:none;
+	margin-bottom:none;
+	display:inline-block;
+}
+
+#footer {
+	text-align:center;
+}
+

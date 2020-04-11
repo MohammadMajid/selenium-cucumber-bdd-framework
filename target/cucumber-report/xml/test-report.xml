@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testsuite failures="0" name="cucumber.runtime.formatter.JUnitFormatter" skipped="0" tests="1" time="10.547679">
+<testcase classname="Edit/Delete existing employee functionality" name="Admin user Edit/Delete Employee" time="10.547679">
+<system-out><![CDATA[Given An Admin..............................................................passed
+When I can browse to the site...............................................passed
+Then Ableto Admin Dashboard page should display.............................passed
+When I can select the Action Edit...........................................passed
+Then I can edit employee details............................................passed
+And the data should change in the table.....................................passed
+When I click the Action X...................................................passed
+Then the employee should be deleted.........................................passed
+]]></system-out>
+</testcase>
+</testsuite>
