@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
         tags = { "@smoke" },         /* smoke test only */
         //tags = { "@smoke,@debug" }, /* debug or smoke test */
         //monochr ome = true,
-        features = "src/test/resources/features/EditAndDeleteEployee.*.feature",
+        features = "src/test/resources/features/EditAndDeleteEployee.feature",
         glue = {"com.ableto.steps"},
         //dryRun = true,
         plugin={

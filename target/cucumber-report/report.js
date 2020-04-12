@@ -1,4 +1,4 @@
-$(document).ready(function() {var formatter = new CucumberHTML.DOMFormatter($('.cucumber-report'));formatter.uri("src/test/resources/features/EditAndDeleteEployee.*.feature");
+$(document).ready(function() {var formatter = new CucumberHTML.DOMFormatter($('.cucumber-report'));formatter.uri("src/test/resources/features/EditAndDeleteEployee.feature");
 formatter.feature({
   "line": 1,
   "name": "Edit/Delete existing employee functionality",
@@ -70,56 +70,56 @@ formatter.match({
   "location": "EditAndDeleteEmpSteps.an_Admin()"
 });
 formatter.result({
-  "duration": 2605433008,
+  "duration": 4242735601,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.i_can_browse_to_the_site()"
 });
 formatter.result({
-  "duration": 598857498,
+  "duration": 713708135,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.ableto_Admin_Dashboard_page_should_display()"
 });
 formatter.result({
-  "duration": 11724135,
+  "duration": 13208498,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.i_can_select_the_Action_Edit()"
 });
 formatter.result({
-  "duration": 60951318,
+  "duration": 141848760,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.i_can_edit_employee_details()"
 });
 formatter.result({
-  "duration": 3890582918,
+  "duration": 3930019318,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.the_data_should_change_in_the_table()"
 });
 formatter.result({
-  "duration": 32991688,
+  "duration": 31233509,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.i_click_the_Action_X()"
 });
 formatter.result({
-  "duration": 3331306572,
+  "duration": 3332463990,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.the_employee_should_be_deleted()"
 });
 formatter.result({
-  "duration": 15831524,
+  "duration": 19744412,
   "status": "passed"
 });
 });
