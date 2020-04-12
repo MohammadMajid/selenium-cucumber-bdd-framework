@@ -70,56 +70,56 @@ formatter.match({
   "location": "EditAndDeleteEmpSteps.an_Admin()"
 });
 formatter.result({
-  "duration": 4242735601,
+  "duration": 2405142650,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.i_can_browse_to_the_site()"
 });
 formatter.result({
-  "duration": 713708135,
+  "duration": 1502882744,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.ableto_Admin_Dashboard_page_should_display()"
 });
 formatter.result({
-  "duration": 13208498,
+  "duration": 7853229,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.i_can_select_the_Action_Edit()"
 });
 formatter.result({
-  "duration": 141848760,
+  "duration": 56705394,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.i_can_edit_employee_details()"
 });
 formatter.result({
-  "duration": 3930019318,
+  "duration": 4026953519,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.the_data_should_change_in_the_table()"
 });
 formatter.result({
-  "duration": 31233509,
+  "duration": 27444358,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.i_click_the_Action_X()"
 });
 formatter.result({
-  "duration": 3332463990,
+  "duration": 3327034775,
   "status": "passed"
 });
 formatter.match({
   "location": "EditAndDeleteEmpSteps.the_employee_should_be_deleted()"
 });
 formatter.result({
-  "duration": 19744412,
+  "duration": 17232085,
   "status": "passed"
 });
 });

@@ -1,4 +1,4 @@
-package com.ableto.qa;
+package com.ableto.qa.junit;
 
 import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
@@ -23,5 +23,5 @@ import org.junit.runner.RunWith;
                 "junit:target/cucumber-report/xml/test-report.xml"
         }
 )
-public class BDDRunner {
+public class BDDRunnerJUnit {
 }

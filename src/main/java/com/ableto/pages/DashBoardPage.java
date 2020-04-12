@@ -1,13 +1,13 @@
 package com.ableto.pages;
 
-import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
-
 import java.util.List;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Created by Mohammad Majid on 4/11/2020
@@ -63,7 +63,7 @@ public class DashBoardPage extends PageBase {
 
     public void verifyAllEmpRemoved(){
         List<WebElement> lists = driver.findElements(By.xpath("//*[@class='table table-striped table-hover']"));
-        Assert.assertEquals(1,lists.size());
+        assertThat(1,equalTo(lists.size()));
     }
 
     public void verifyEmpAdded(){
