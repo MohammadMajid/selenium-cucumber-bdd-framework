@@ -160,23 +160,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      PAGES_ADMIN_TOKEN: ${{ secrets.PAGES_ADMIN_TOKEN }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Configure GitHub Pages with admin token
-        if: ${{ env.PAGES_ADMIN_TOKEN != '' }}
-        uses: actions/configure-pages@v5
-        with:
-          token: ${{ env.PAGES_ADMIN_TOKEN }}
-          enablement: true
-
-      - name: Configure GitHub Pages
-        if: ${{ env.PAGES_ADMIN_TOKEN == '' }}
-        uses: actions/configure-pages@v5
-
       - name: Download JUnit Allure HTML artifact
         uses: actions/download-artifact@v8
         with:
