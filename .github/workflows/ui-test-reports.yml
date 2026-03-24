@@ -151,20 +151,22 @@ jobs:
       - junit-headless
       - testng-headless
     runs-on: ubuntu-latest
+    env:
+      PAGES_ADMIN_TOKEN: ${{ secrets.PAGES_ADMIN_TOKEN }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Configure GitHub Pages with admin token
-        if: ${{ secrets.PAGES_ADMIN_TOKEN != '' }}
+        if: ${{ env.PAGES_ADMIN_TOKEN != '' }}
         uses: actions/configure-pages@v5
         with:
-          token: ${{ secrets.PAGES_ADMIN_TOKEN }}
+          token: ${{ env.PAGES_ADMIN_TOKEN }}
           enablement: true
 
       - name: Configure GitHub Pages
-        if: ${{ secrets.PAGES_ADMIN_TOKEN == '' }}
+        if: ${{ env.PAGES_ADMIN_TOKEN == '' }}
         uses: actions/configure-pages@v5
 
       - name: Download JUnit Allure HTML artifact
