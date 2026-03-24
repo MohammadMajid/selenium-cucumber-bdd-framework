@@ -1,0 +1,283 @@
+name: UI Test Reports CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  junit-headless:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Verify toolchain
+        run: |
+          java -version
+          mvn -version
+          chrome --version
+
+      - name: Run JUnit tests in headless Chrome
+        id: junit_tests
+        continue-on-error: true
+        run: mvn -B clean test -Dbrowser=chrome -Dheadless=true
+
+      - name: Generate JUnit Allure report
+        if: always()
+        run: mvn -B -U allure:report
+
+      - name: Upload JUnit Allure raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-junit
+          path: target/allure-results/junit
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload JUnit Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-html-junit
+          path: target/site/allure-maven/junit
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload JUnit Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-junit
+          path: target/surefire-reports
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Fail workflow if JUnit tests failed
+        if: steps.junit_tests.outcome != 'success'
+        run: |
+          echo "JUnit headless test run failed. See uploaded artifacts for details."
+          exit 1
+
+  testng-headless:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Verify toolchain
+        run: |
+          java -version
+          mvn -version
+          chrome --version
+
+      - name: Run TestNG tests in headless Chrome
+        id: testng_tests
+        continue-on-error: true
+        run: mvn -B -Ptestng-runner clean test -Dbrowser=chrome -Dheadless=true
+
+      - name: Generate TestNG Allure report
+        if: always()
+        run: mvn -B -U -Ptestng-runner allure:report
+
+      - name: Upload TestNG Allure raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-testng
+          path: target/allure-results/testng
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload TestNG Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-html-testng
+          path: target/site/allure-maven/testng
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-testng
+          path: target/surefire-reports
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Fail workflow if tests failed
+        if: steps.testng_tests.outcome != 'success'
+        run: |
+          echo "TestNG headless test run failed. See uploaded artifacts for details."
+          exit 1
+
+  deploy-pages:
+    if: always() && github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+    needs:
+      - junit-headless
+      - testng-headless
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Download JUnit Allure HTML artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-html-junit
+          path: _site/junit
+
+      - name: Download TestNG Allure HTML artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-html-testng
+          path: _site/testng
+
+      - name: Create Pages landing page
+        run: |
+          cat <<'EOF' > _site/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Selenium Cucumber BDD Framework Reports</title>
+            <style>
+              :root {
+                color-scheme: light;
+                --bg: #f4f0e8;
+                --panel: #fffaf1;
+                --ink: #1f2937;
+                --muted: #6b7280;
+                --accent: #a13d2d;
+                --accent-2: #1f5f8b;
+                --border: #e7dccb;
+              }
+              * { box-sizing: border-box; }
+              body {
+                margin: 0;
+                font-family: Georgia, "Times New Roman", serif;
+                background: radial-gradient(circle at top, #fff7ea 0%, var(--bg) 55%, #efe6d8 100%);
+                color: var(--ink);
+              }
+              main {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 56px 24px 72px;
+              }
+              h1 {
+                margin: 0 0 12px;
+                font-size: clamp(2rem, 4vw, 3.4rem);
+              }
+              p {
+                color: var(--muted);
+                font-size: 1.05rem;
+                line-height: 1.6;
+              }
+              .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                gap: 18px;
+                margin-top: 32px;
+              }
+              .card {
+                display: block;
+                padding: 24px;
+                border-radius: 18px;
+                text-decoration: none;
+                color: inherit;
+                background: var(--panel);
+                border: 1px solid var(--border);
+                box-shadow: 0 16px 40px rgba(84, 54, 26, 0.08);
+              }
+              .card:hover {
+                transform: translateY(-2px);
+                transition: transform 160ms ease;
+              }
+              .eyebrow {
+                font-family: "Courier New", monospace;
+                font-size: 0.85rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--accent-2);
+              }
+              .card h2 {
+                margin: 10px 0 8px;
+                font-size: 1.5rem;
+              }
+              .card span {
+                color: var(--accent);
+                font-weight: 700;
+              }
+            </style>
+          </head>
+          <body>
+            <main>
+              <div class="eyebrow">Selenium Cucumber BDD Framework</div>
+              <h1>Published Allure Reports</h1>
+              <p>Each workflow run publishes the latest JUnit and TestNG Allure HTML reports here. Open the report you need below.</p>
+              <section class="grid">
+                <a class="card" href="./junit/">
+                  <div class="eyebrow">Default runner</div>
+                  <h2>JUnit Report</h2>
+                  <p>Headless Chrome execution of the default JUnit Cucumber runner.</p>
+                  <span>Open JUnit report</span>
+                </a>
+                <a class="card" href="./testng/">
+                  <div class="eyebrow">Profile: testng-runner</div>
+                  <h2>TestNG Report</h2>
+                  <p>Headless Chrome execution of the TestNG Cucumber runner used for CI.</p>
+                  <span>Open TestNG report</span>
+                </a>
+              </section>
+            </main>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

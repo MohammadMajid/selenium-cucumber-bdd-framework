@@ -1,0 +1,28 @@
+# Maven build output
+/target/
+
+# IntelliJ IDEA
+/.idea/
+*.iml
+out/
+
+# Allure
+/.allure/
+/allure-results/
+/allure-report/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Environment overrides
+.env
+.env.*
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo

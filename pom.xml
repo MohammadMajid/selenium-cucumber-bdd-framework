@@ -4,21 +4,32 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ableto</groupId>
-    <artifactId>AbleToAutomationBDD</artifactId>
+    <groupId>com.seleniumcucumberbddframework</groupId>
+    <artifactId>SeleniumCucumberBDDFramework</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <java.version>1.8</java.version>
-        <maven-compiler.version>3.3</maven-compiler.version>
-        <selenium.version>3.8.1</selenium.version>
-        <webdrivermanager.version>3.6.1</webdrivermanager.version>
-        <cucumber.version>1.2.5</cucumber.version>
-        <testng.version>6.13.1</testng.version>
-        <junit.version>4.12</junit.version>
+        <java.version>17</java.version>
+        <maven.compiler.version>3.13.0</maven.compiler.version>
+        <selenium.version>4.29.0</selenium.version>
+        <webdrivermanager.version>5.9.2</webdrivermanager.version>
+        <cucumber.version>7.20.1</cucumber.version>
+        <testng.version>7.10.2</testng.version>
+        <junit.version>4.13.2</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <maven-surefire.version>3.0.0-M3</maven-surefire.version>
+        <maven-surefire.version>3.5.2</maven-surefire.version>
         <cucumber-reporting.version>5.1.1</cucumber-reporting.version>
+        <allure.version>2.29.1</allure.version>
+        <allure.report.version>2.36.0</allure.report.version>
+        <allure.maven.version>2.12.0</allure.maven.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <surefire.provider.artifactId>surefire-junit47</surefire.provider.artifactId>
+        <test.runner.include>**/BDDRunnerJUnit.class</test.runner.include>
+        <test.runner.name>junit</test.runner.name>
+        <cucumber.results.dir>${project.build.directory}/cucumber-results/junit</cucumber.results.dir>
+        <cucumber.html.dir>${project.build.directory}/cucumber-report/junit</cucumber.html.dir>
+        <allure.results.dir>${project.build.directory}/allure-results/junit</allure.results.dir>
+        <allure.report.dir>${project.build.directory}/site/allure-maven/junit</allure.report.dir>
     </properties>
 
     <dependencies>
@@ -41,38 +52,41 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>${testng.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.tngtech.java</groupId>
             <artifactId>junit-dataprovider</artifactId>
             <version>1.13.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
             <version>${hamcrest.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/info.cukes/cucumber-jvm -->
         <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-jvm</artifactId>
-            <version>1.2.5</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>info.cukes</groupId>
+            <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
             <version>${cucumber.version}</version>
         </dependency>
         <dependency>
-            <groupId>info.cukes</groupId>
+            <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
-            <version>1.2.5</version>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>info.cukes</groupId>
+            <groupId>io.cucumber</groupId>
             <artifactId>cucumber-testng</artifactId>
-            <version>1.2.5</version>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.masterthought</groupId>
@@ -86,10 +100,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler.version}</version>
+                <version>${maven.compiler.version}</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
 
@@ -100,16 +113,19 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>3.0.0-M3</version>
+                        <artifactId>${surefire.provider.artifactId}</artifactId>
+                        <version>${maven-surefire.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <testFailureIgnore>true</testFailureIgnore>
-                    <parallel>classesAndMethods</parallel>
-                    <threadCount>5</threadCount>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <useModulePath>false</useModulePath>
+                    <systemPropertyVariables>
+                        <allure.results.directory>${allure.results.dir}</allure.results.directory>
+                        <test.runner.name>${test.runner.name}</test.runner.name>
+                    </systemPropertyVariables>
                     <includes>
-                        <include>**/com.ableto.qa.BDDRunner.class</include>
+                        <include>${test.runner.include}</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -120,7 +136,6 @@
                 <version>${maven-surefire.version}</version>
                 <configuration>
                     <showSuccess>false</showSuccess>
-                    <outputDirectory>${basedir}/target/surefire-reports</outputDirectory>
                 </configuration>
                 <executions>
                     <execution>
@@ -135,6 +150,17 @@
 
             <!-- Cucumber reporting -->
             <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>${allure.maven.version}</version>
+                <configuration>
+                    <reportVersion>${allure.report.version}</reportVersion>
+                    <resultsDirectory>${allure.results.dir}</resultsDirectory>
+                    <reportDirectory>${allure.report.dir}</reportDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
             <groupId>com.trivago.rta</groupId>
             <artifactId>cluecumber-report-plugin</artifactId>
             <version>1.3.0</version>
@@ -148,10 +174,25 @@
                 </execution>
             </executions>
                 <configuration>
-                    <sourceJsonReportDirectory>${project.build.directory}/cucumber-report/json</sourceJsonReportDirectory>
-                    <generatedHtmlReportDirectory>${project.build.directory}/cucumber-report</generatedHtmlReportDirectory>
+                    <sourceJsonReportDirectory>${cucumber.results.dir}</sourceJsonReportDirectory>
+                    <generatedHtmlReportDirectory>${cucumber.html.dir}</generatedHtmlReportDirectory>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>testng-runner</id>
+            <properties>
+                <surefire.provider.artifactId>surefire-testng</surefire.provider.artifactId>
+                <test.runner.include>**/BDDRunnerTestNG.class</test.runner.include>
+                <test.runner.name>testng</test.runner.name>
+                <cucumber.results.dir>${project.build.directory}/cucumber-results/testng</cucumber.results.dir>
+                <cucumber.html.dir>${project.build.directory}/cucumber-report/testng</cucumber.html.dir>
+                <allure.results.dir>${project.build.directory}/allure-results/testng</allure.results.dir>
+                <allure.report.dir>${project.build.directory}/site/allure-maven/testng</allure.report.dir>
+            </properties>
+        </profile>
+    </profiles>
 </project>

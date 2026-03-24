@@ -6,7 +6,7 @@ Feature: Edit/Delete existing employee functionality
   Scenario: Admin user Edit/Delete Employee
     Given An Admin
     When I can browse to the site
-    Then Ableto Admin Dashboard page should display
+    Then Selenium Cucumber BDD Framework Dashboard page should display
     When I can select the Action Edit
     Then I can edit employee details
     And the data should change in the table
