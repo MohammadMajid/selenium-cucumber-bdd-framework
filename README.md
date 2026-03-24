@@ -171,6 +171,17 @@ The GitHub Pages deployment runs only outside pull requests and only on the repo
 
 Update the badge and Pages URL placeholders at the top of this file after the repository is available on GitHub.
 
+### GitHub Pages setup
+
+If the workflow fails on `actions/configure-pages@v5` with a `Get Pages site failed` or `Not Found` error, the repository does not have Pages enabled yet.
+
+You have two valid ways to fix that:
+
+- Manual setup in GitHub: open repository `Settings` -> `Pages` -> under `Build and deployment`, set `Source` to `GitHub Actions`.
+- Automatic setup from the workflow: create a repository secret named `PAGES_ADMIN_TOKEN` and store a Personal Access Token that can administer the repository and write Pages configuration.
+
+The workflow is already configured to use `PAGES_ADMIN_TOKEN` when it exists and will call `actions/configure-pages@v5` with `enablement: true`.
+
 ## Notes
 
 - Do not open the Allure report with a direct `file://` path or `open .../index.html`. Some sections such as Categories, Suites, and Timeline can fail to load correctly that way.
