@@ -1,5 +1,8 @@
 name: UI Test Reports CI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
   pull_request:
@@ -20,17 +23,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
           cache: maven
 
       - name: Set up Chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
 
       - name: Verify toolchain
         run: |
@@ -49,7 +52,7 @@ jobs:
 
       - name: Upload JUnit Allure raw results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-results-junit
           path: target/allure-results/junit
@@ -58,7 +61,7 @@ jobs:
 
       - name: Upload JUnit Allure HTML report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-html-junit
           path: target/site/allure-maven/junit
@@ -67,7 +70,7 @@ jobs:
 
       - name: Upload JUnit Surefire reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: surefire-reports-junit
           path: target/surefire-reports
@@ -85,17 +88,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
           cache: maven
 
       - name: Set up Chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
 
       - name: Verify toolchain
         run: |
@@ -114,7 +117,7 @@ jobs:
 
       - name: Upload TestNG Allure raw results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-results-testng
           path: target/allure-results/testng
@@ -123,7 +126,7 @@ jobs:
 
       - name: Upload TestNG Allure HTML report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-html-testng
           path: target/site/allure-maven/testng
@@ -132,7 +135,7 @@ jobs:
 
       - name: Upload Surefire reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: surefire-reports-testng
           path: target/surefire-reports
@@ -170,13 +173,13 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Download JUnit Allure HTML artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: allure-html-junit
           path: _site/junit
 
       - name: Download TestNG Allure HTML artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: allure-html-testng
           path: _site/testng
