@@ -1,10 +1,10 @@
 # Selenium Cucumber BDD Framework
 
-[![UI Test Reports CI](https://github.com/<GITHUB_OWNER>/<GITHUB_REPO>/actions/workflows/ui-test-reports.yml/badge.svg)](https://github.com/<GITHUB_OWNER>/<GITHUB_REPO>/actions/workflows/ui-test-reports.yml)
+[![UI Test Reports CI](https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions/workflows/ui-test-reports.yml/badge.svg)](https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions/workflows/ui-test-reports.yml)
 
 GitHub Pages report URL:
 
-- `https://<GITHUB_OWNER>.github.io/<GITHUB_REPO>/`
+- `https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/settings/pages`
 
 ## Run Tests And Reports
 
