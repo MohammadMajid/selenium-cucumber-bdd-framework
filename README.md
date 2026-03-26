@@ -1,6 +1,6 @@
 # 🚀 Selenium Cucumber BDD Automation Framework (CI/CD + Allure Reporting)
 
-![Build Status](https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions/workflows/ui-test-reports.yml/badge.svg)
+🔃[Build Status](https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions)
 
 ---
 
