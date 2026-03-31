@@ -2,6 +2,7 @@ package com.seleniumcucumberbddframework.qa.testng;
 
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
+import org.testng.annotations.DataProvider;
 
 /**
  * Created by Mohammad Majid on 4/11/2020
@@ -21,4 +22,10 @@ import io.cucumber.testng.CucumberOptions;
         }
 )
 public class BDDRunnerTestNG extends AbstractTestNGCucumberTests {
+
+    @Override
+    @DataProvider(parallel = true)
+    public Object[][] scenarios() {
+        return super.scenarios();
+    }
 }

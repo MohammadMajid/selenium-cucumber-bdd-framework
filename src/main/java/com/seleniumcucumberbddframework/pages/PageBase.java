@@ -14,7 +14,7 @@ public class PageBase extends WebElementUtils{
     }
 
     public void verifyPageTitle(String expectedTitle){
-        String title = driver.getTitle();
+        String title = driver().getTitle();
         Assert.assertEquals(expectedTitle,title);
     }
 }

@@ -30,6 +30,17 @@
         <cucumber.html.dir>${project.build.directory}/cucumber-report/junit</cucumber.html.dir>
         <allure.results.dir>${project.build.directory}/allure-results/junit</allure.results.dir>
         <allure.report.dir>${project.build.directory}/site/allure-maven/junit</allure.report.dir>
+        <parallel.threads>2</parallel.threads>
+        <browser>chrome</browser>
+        <execution.mode>local</execution.mode>
+        <grid.url>http://localhost:4444</grid.url>
+        <app.base.url></app.base.url>
+        <headless>false</headless>
+        <platform.name></platform.name>
+        <browser.version></browser.version>
+        <browserstack.username></browserstack.username>
+        <browserstack.accessKey></browserstack.accessKey>
+        <browserstack.url>hub-cloud.browserstack.com/wd/hub</browserstack.url>
     </properties>
 
     <dependencies>
@@ -120,9 +131,25 @@
                 <configuration>
                     <testFailureIgnore>false</testFailureIgnore>
                     <useModulePath>false</useModulePath>
+                    <properties>
+                        <property>
+                            <name>dataproviderthreadcount</name>
+                            <value>${parallel.threads}</value>
+                        </property>
+                    </properties>
                     <systemPropertyVariables>
                         <allure.results.directory>${allure.results.dir}</allure.results.directory>
                         <test.runner.name>${test.runner.name}</test.runner.name>
+                        <browser>${browser}</browser>
+                        <execution.mode>${execution.mode}</execution.mode>
+                        <grid.url>${grid.url}</grid.url>
+                        <app.base.url>${app.base.url}</app.base.url>
+                        <headless>${headless}</headless>
+                        <platform.name>${platform.name}</platform.name>
+                        <browser.version>${browser.version}</browser.version>
+                        <browserstack.username>${browserstack.username}</browserstack.username>
+                        <browserstack.accessKey>${browserstack.accessKey}</browserstack.accessKey>
+                        <browserstack.url>${browserstack.url}</browserstack.url>
                     </systemPropertyVariables>
                     <includes>
                         <include>${test.runner.include}</include>

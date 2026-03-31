@@ -1,0 +1,98 @@
+services:
+  selenium-hub:
+    image: selenium/hub:4.29.0
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+    environment:
+      SE_GRID_MAX_SESSION: ${GRID_MAX_SESSIONS:-4}
+      SE_SESSION_REQUEST_TIMEOUT: ${GRID_SESSION_REQUEST_TIMEOUT:-300}
+      SE_SESSION_RETRY_INTERVAL: ${GRID_SESSION_RETRY_INTERVAL:-2}
+
+  chrome:
+    image: selenium/node-chromium:4.29.0
+    shm_size: 2gb
+    depends_on:
+      selenium-hub:
+        condition: service_started
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_MAX_SESSIONS: ${CHROME_NODE_MAX_SESSIONS:-1}
+      SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+      SE_START_VNC: "false"
+    volumes:
+      - /dev/shm:/dev/shm
+
+  firefox:
+    profiles:
+      - cross-browser
+    image: selenium/node-firefox:4.29.0
+    shm_size: 2gb
+    depends_on:
+      selenium-hub:
+        condition: service_started
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_MAX_SESSIONS: ${FIREFOX_NODE_MAX_SESSIONS:-1}
+      SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+      SE_START_VNC: "false"
+    volumes:
+      - /dev/shm:/dev/shm
+
+  app:
+    image: nginx:1.27-alpine
+    depends_on:
+      selenium-hub:
+        condition: service_started
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src/app:/usr/share/nginx/html:ro
+
+  test-runner:
+    profiles:
+      - tests
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /workspace
+    depends_on:
+      selenium-hub:
+        condition: service_started
+      chrome:
+        condition: service_started
+      app:
+        condition: service_started
+    environment:
+      GRID_STATUS_URL: http://selenium-hub:4444/status
+      GRID_URL: http://selenium-hub:4444
+      APP_BASE_URL: http://app
+      GRID_TIMEOUT: ${GRID_TIMEOUT:-120}
+      EXPECTED_GRID_NODES: ${EXPECTED_GRID_NODES:-1}
+      BROWSER: ${BROWSER:-chrome}
+      HEADLESS: ${HEADLESS:-true}
+      PARALLEL_THREADS: ${PARALLEL_THREADS:-2}
+      MAVEN_PROFILE: ${MAVEN_PROFILE:-testng-runner}
+    command: >
+      sh -c "
+      sh scripts/wait-for-grid.sh \"$$GRID_STATUS_URL\" \"$$GRID_TIMEOUT\" \"$$EXPECTED_GRID_NODES\" &&
+      mvn -B -P$$MAVEN_PROFILE clean test
+      -Dexecution.mode=grid
+      -Dgrid.url=$$GRID_URL
+      -Dapp.base.url=$$APP_BASE_URL
+      -Dbrowser=$$BROWSER
+      -Dparallel.threads=$$PARALLEL_THREADS
+      -Dheadless=$$HEADLESS
+      "
+    volumes:
+      - .:/workspace
+      - maven-cache:/root/.m2
+
+volumes:
+  maven-cache:

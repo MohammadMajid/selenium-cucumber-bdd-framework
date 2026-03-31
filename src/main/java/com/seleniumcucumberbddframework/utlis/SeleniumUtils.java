@@ -18,9 +18,11 @@ public class SeleniumUtils {
 
     public static final int DEFAULT_WAIT_TIME = 10;
 
-    protected WebDriver driver = DriverFactory.getInstance().getDriver();
-
     public SeleniumUtils(){
+    }
+
+    protected WebDriver driver() {
+        return DriverFactory.getInstance().getDriver();
     }
 
     public void delayFor(int timeInMili){
@@ -34,7 +36,7 @@ public class SeleniumUtils {
 
     protected void highlight(WebElement element) {
         for (int i = 0; i < 2; i++) {
-            JavascriptExecutor js = (JavascriptExecutor) driver;
+            JavascriptExecutor js = (JavascriptExecutor) driver();
             js.executeScript("arguments[0].setAttribute('style', arguments[1]);", element, "border: 2px solid red;");
             delayFor(200);
             js.executeScript(
@@ -46,9 +48,10 @@ public class SeleniumUtils {
 
     public WebElement waitForElementDisplayed(final By locator, int timeToWaitInSec) {
 
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(100));
+        WebDriver currentDriver = driver();
+        currentDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(100));
 
-        Wait<WebDriver> wait = new FluentWait<WebDriver>(driver)
+        Wait<WebDriver> wait = new FluentWait<WebDriver>(currentDriver)
                 .withTimeout(Duration.ofSeconds(timeToWaitInSec))
                 .pollingEvery(Duration.ofMillis(100))
                 .ignoring(NoSuchElementException.class);
@@ -61,7 +64,7 @@ public class SeleniumUtils {
             return null;
         });
 
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(DEFAULT_WAIT_TIME));
+        currentDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(DEFAULT_WAIT_TIME));
         return foo;
     }
 
@@ -69,7 +72,7 @@ public class SeleniumUtils {
         Boolean found = false;
         WebElement element = null;
         try {
-            element = driver.findElement(by);
+            element = driver().findElement(by);
             found = fluentWait(timeToWaitInSec).until(ExpectedConditions.textToBePresentInElementLocated(by, textToWait));
         }
         catch (Exception ex){
@@ -91,7 +94,7 @@ public class SeleniumUtils {
         wait.until(ExpectedConditions.visibilityOf(element));
     }
     public void waitForVisibilityOfElement(By locator){
-        WebElement element = driver.findElement(locator);
+        WebElement element = driver().findElement(locator);
         waitForVisibilityOfElement(element);
     }
 
@@ -115,7 +118,7 @@ public class SeleniumUtils {
         wait.until(ExpectedConditions.attributeContains(element,attributeName,attributeValue));
     }
     public void waitForElementAttributeContains(By locator,String attributeName, String attributeValue){
-        WebElement element = driver.findElement(locator);
+        WebElement element = driver().findElement(locator);
         waitForElementAttributeContains(element,attributeName,attributeValue);
     }
 
@@ -129,7 +132,7 @@ public class SeleniumUtils {
     }
 
     public FluentWait<WebDriver> fluentWait(int durationInSeconds) {
-        return new FluentWait<>(driver)
+        return new FluentWait<>(driver())
                 .withTimeout(Duration.ofSeconds(durationInSeconds))
                 .pollingEvery(Duration.ofMillis(50))
                 .ignoring(StaleElementReferenceException.class)
@@ -139,12 +142,12 @@ public class SeleniumUtils {
 
 
     public void scrollToElement(WebElement element){
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+        ((JavascriptExecutor) driver()).executeScript("arguments[0].scrollIntoView(true);", element);
         delayFor(3000);
     }
 
     public String getLastWindowHandle(){
-        Set<String> winHdls = driver.getWindowHandles();
+        Set<String> winHdls = driver().getWindowHandles();
         return winHdls.toArray()[winHdls.size() - 1].toString();
     }
 
@@ -153,12 +156,12 @@ public class SeleniumUtils {
     }
 
     public void switchToLastWindow(){
-        driver.switchTo().window(getLastWindowHandle());
+        driver().switchTo().window(getLastWindowHandle());
     }
 
     public void closeLastWindow(){
         switchToLastWindow();
-        driver.close();
+        driver().close();
     }
 
     public void switchToWindow(String winTitle){
@@ -174,35 +177,36 @@ public class SeleniumUtils {
     }
 
     public void switchToWindow(int winIndex){
-        driver.switchTo().window(getWindowHandle(winIndex));
+        driver().switchTo().window(getWindowHandle(winIndex));
     }
 
     public void closeWindow(String title){
         switchToWindow(title);
-        driver.close();
+        driver().close();
         switchToLastWindow();
     }
 
     public void closeWindow(int winIndex){
         switchToWindow(winIndex);
-        driver.close();
+        driver().close();
         switchToLastWindow();
     }
 
     public void closeAllOpenWindowExceptCurrent(){
-        String currentWindowHnd = driver.getWindowHandle();
-        Set<String> windowList = driver.getWindowHandles();
+        WebDriver currentDriver = driver();
+        String currentWindowHnd = currentDriver.getWindowHandle();
+        Set<String> windowList = currentDriver.getWindowHandles();
         for(String window : windowList){
             if(!currentWindowHnd.contentEquals(window)){
-                driver.switchTo().window(window);
-                driver.close();
+                currentDriver.switchTo().window(window);
+                currentDriver.close();
             }
         }
-        driver.switchTo().window(currentWindowHnd);
+        currentDriver.switchTo().window(currentWindowHnd);
     }
 
     private String getWindowHandle(int winIndex) {
-        Set<String> winHdls = driver.getWindowHandles();
+        Set<String> winHdls = driver().getWindowHandles();
 
         if (winIndex >= 0 && winIndex < winHdls.size()) {
             return winHdls.toArray()[winIndex].toString();
@@ -212,12 +216,13 @@ public class SeleniumUtils {
     }
 
     private void switchToWindowMatching(Predicate<WebDriver> matcher, String errorMessage) {
-        Set<String> winHdls = driver.getWindowHandles();
+        WebDriver currentDriver = driver();
+        Set<String> winHdls = currentDriver.getWindowHandles();
         Iterator<String> iterator = winHdls.iterator();
         while (iterator.hasNext()) {
             String win = iterator.next();
-            driver.switchTo().window(win);
-            if (matcher.test(driver)) {
+            currentDriver.switchTo().window(win);
+            if (matcher.test(currentDriver)) {
                 return;
             }
         }
