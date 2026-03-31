@@ -1,6 +1,6 @@
 # Selenium Cucumber BDD Automation Framework
 
-![Build Status](https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions/workflows/ui-test-reports.yml/badge.svg)
+🔃[Build Status](https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions)
 
 ## Project Overview
 
@@ -198,3 +198,4 @@ https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions/workflo
 ## Author
 
 **Mohammad Majid**
+If you find this project useful, please ⭐ the repository!
