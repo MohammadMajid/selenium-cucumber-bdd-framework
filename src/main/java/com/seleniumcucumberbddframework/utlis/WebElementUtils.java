@@ -35,7 +35,7 @@ public class WebElementUtils extends SeleniumUtils {
 
     protected boolean isElementDisplayed(WebElement element, Integer timeout) {
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
+            WebDriverWait wait = new WebDriverWait(driver(), Duration.ofSeconds(timeout));
             wait.until(ExpectedConditions.visibilityOf(element));
         } catch (NoSuchElementException e) {
             return false;

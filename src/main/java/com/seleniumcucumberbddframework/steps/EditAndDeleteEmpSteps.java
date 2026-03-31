@@ -13,12 +13,12 @@ public class EditAndDeleteEmpSteps extends StepBase {
 
     @Given("^An Admin$")
     public void an_Admin() throws Throwable {
-        driver.manage().deleteAllCookies();
+        driver().manage().deleteAllCookies();
     }
 
     @When("^I can browse to the site$")
     public void i_can_browse_to_the_site() throws Throwable {
-        driver.navigate().to("file:///" + System.getProperty("user.dir") + "/src/app/home.html?username=admin123");
+        driver().navigate().to(resolveApplicationUrl());
     }
 
     @Then("^Selenium Cucumber BDD Framework Dashboard page should display$")

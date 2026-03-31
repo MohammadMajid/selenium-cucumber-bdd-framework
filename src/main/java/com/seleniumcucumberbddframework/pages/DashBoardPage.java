@@ -17,10 +17,8 @@ public class DashBoardPage extends PageBase {
 
     public DashBoardPage() {
         super();
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(driver(), this);
     }
-
-    private String expectedName;
 
     @FindBy(how = How.XPATH, using = "//*[@for='firstname']//following::input[1]")
     private WebElement firstName;
@@ -42,19 +40,18 @@ public class DashBoardPage extends PageBase {
 
     public void AddEmployeeName(String name, String name1,int num) {
         typeText(firstName, name);
-        expectedName = firstName.getAttribute("value");
         typeText(lastName, name1);
         typeText(program, String.valueOf(num));
         click(submitBtn);
     }
 
     public void selectActionEdit() {
-        List<WebElement> lists = driver.findElements(By.xpath("//*[@id='btnEdit']"));
+        List<WebElement> lists = driver().findElements(By.xpath("//*[@id='btnEdit']"));
         lists.get(0).click();
     }
 
     public void deleteEmp() {
-        List<WebElement> lists = driver.findElements(By.xpath("//*[@id='btnDelete']"));
+        List<WebElement> lists = driver().findElements(By.xpath("//*[@id='btnDelete']"));
         for (int i=0;i<lists.size();i++){
             lists.get(i).click();
             delayFor(3000);
@@ -62,13 +59,13 @@ public class DashBoardPage extends PageBase {
     }
 
     public void verifyAllEmpRemoved(){
-        List<WebElement> lists = driver.findElements(By.xpath("//*[@class='table table-striped table-hover']"));
+        List<WebElement> lists = driver().findElements(By.xpath("//*[@class='table table-striped table-hover']"));
         assertThat(1,equalTo(lists.size()));
     }
 
     public void verifyEmpAdded(){
-        List<WebElement> lists = driver.findElements(By.xpath("//*[@class='table table-striped table-hover']//td"));
+        List<WebElement> lists = driver().findElements(By.xpath("//*[@class='table table-striped table-hover']//td"));
         String actualName = lists.get(2).getText();
-        //Assert.assertEquals(expectedName,actualName);
+        assertThat(actualName.isEmpty(), equalTo(false));
     }
 }

@@ -14,10 +14,10 @@ import java.time.Duration;
 public class BeforeAfterHook extends StepBase{
     @Before
     public void setup() {
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
-        driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(10));
-        AllureEnvironmentWriter.write(driver);
+        driver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+        driver().manage().timeouts().scriptTimeout(Duration.ofSeconds(10));
+        AllureEnvironmentWriter.write(driver());
     }
 
     @After

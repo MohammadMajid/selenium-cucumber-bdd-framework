@@ -1,18 +1,17 @@
 package com.seleniumcucumberbddframework.utlis;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Locale;
 
 /**
  * Created by Mohammad Majid on 4/11/2020
@@ -21,9 +20,16 @@ import java.net.URL;
 public class DriverFactory {
 
     private static final String BROWSER_PROPERTY = "browser";
+    private static final String EXECUTION_MODE_PROPERTY = "execution.mode";
     private static final String HEADLESS_PROPERTY = "headless";
+    private static final String GRID_URL_PROPERTY = "grid.url";
+    private static final String PLATFORM_NAME_PROPERTY = "platform.name";
+    private static final String BROWSER_VERSION_PROPERTY = "browser.version";
+    private static final String BROWSERSTACK_USERNAME_PROPERTY = "browserstack.username";
+    private static final String BROWSERSTACK_ACCESS_KEY_PROPERTY = "browserstack.accessKey";
+    private static final String BROWSERSTACK_URL_PROPERTY = "browserstack.url";
 
-    public enum BrowserType{
+    public enum BrowserType {
         CHROME,
         FIREFOX,
         CLOUD_CHROME,
@@ -36,10 +42,8 @@ public class DriverFactory {
 
     private static DriverFactory instance = null;
 
-    public static final String USERNAME = "";
-    public static final String AUTOMATE_KEY = "";
-    public static final String URL = "https://" + USERNAME + ":" + AUTOMATE_KEY + "@hub-cloud.browserstack.com/wd/hub";
-    public static final String LOCAL_GRID_URL = "http://localhost:4444/wd/hub";
+    public static final String DEFAULT_GRID_URL = "http://localhost:4444";
+    public static final String DEFAULT_BROWSERSTACK_URL = "hub-cloud.browserstack.com/wd/hub";
 
     private DriverFactory() {
         //Do-nothing..Do not allow to initialize this class from outside
@@ -65,82 +69,24 @@ public class DriverFactory {
     }
 
     private WebDriver createWebDriver(String browserName) {
-        if(browserName.equalsIgnoreCase(BrowserType.CHROME.toString())){
+        if (browserName.equalsIgnoreCase(BrowserType.CHROME.toString())) {
             WebDriverManager.chromedriver().setup();
             return new ChromeDriver(buildChromeOptions());
-        }
-        else if(browserName.equalsIgnoreCase(BrowserType.FIREFOX.toString())){
+        } else if (browserName.equalsIgnoreCase(BrowserType.FIREFOX.toString())) {
             WebDriverManager.firefoxdriver().setup();
             return new FirefoxDriver(buildFirefoxOptions());
-        }
-        else if(browserName.equalsIgnoreCase(BrowserType.CLOUD_CHROME.toString())){
-            DesiredCapabilities caps = new DesiredCapabilities();
-            caps.setCapability("browser", "Chrome");
-            caps.setCapability("browser_version", "64.0");
-            caps.setCapability("os", "Windows");
-            caps.setCapability("os_version", "7");
-            caps.setCapability("resolution", "1920x1080");
-
-            try {
-                return new RemoteWebDriver(toUrl(URL), caps);
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException("Unable to create BrowserStack Chrome driver", e);
-            }
-        } else if(browserName.equalsIgnoreCase(BrowserType.CLOUD_FIREFOX.toString())){
-            DesiredCapabilities caps = new DesiredCapabilities();
-            caps.setCapability("browser", "Firefox");
-            caps.setCapability("browser_version", "64.0");
-            caps.setCapability("os", "Windows");
-            caps.setCapability("os_version", "7");
-            caps.setCapability("resolution", "1920x1080");
-
-            try {
-                return new RemoteWebDriver(toUrl(URL), caps);
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException("Unable to create BrowserStack Firefox driver", e);
-            }
-        }
-        else if(browserName.equalsIgnoreCase(BrowserType.CLOUD_IE.toString())){
-            DesiredCapabilities caps = new DesiredCapabilities();
-            caps.setCapability("browser", "IE");
-            caps.setCapability("browser_version", "11.0");
-            caps.setCapability("os", "Windows");
-            caps.setCapability("os_version", "7");
-            caps.setCapability("resolution", "1920x1080");
-            try {
-                return new RemoteWebDriver(toUrl(URL), caps);
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException("Unable to create BrowserStack IE driver", e);
-            }
-        }else if(browserName.equalsIgnoreCase(BrowserType.GRID_CHROME.toString())){
-            DesiredCapabilities caps = new DesiredCapabilities();
-            caps.setPlatform(Platform.ANY);
-            caps.setBrowserName("chrome");
-            try {
-                return new RemoteWebDriver(toUrl(LOCAL_GRID_URL), caps);
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException("Unable to create grid Chrome driver", e);
-            }
-        }
-        else if(browserName.equalsIgnoreCase(BrowserType.GRID_FIREFOX.toString())){
-            DesiredCapabilities caps = new DesiredCapabilities();
-            caps.setPlatform(Platform.ANY);
-            caps.setBrowserName("firefox");
-            try {
-                return new RemoteWebDriver(toUrl(LOCAL_GRID_URL), caps);
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException("Unable to create grid Firefox driver", e);
-            }
-        }
-        else if(browserName.equalsIgnoreCase(BrowserType.GRID_IE.toString())){
-            DesiredCapabilities caps = new DesiredCapabilities();
-            caps.setPlatform(Platform.ANY);
-            caps.setBrowserName("internet explorer");
-            try {
-                return new RemoteWebDriver(toUrl(LOCAL_GRID_URL), caps);
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException("Unable to create grid IE driver", e);
-            }
+        } else if (browserName.equalsIgnoreCase(BrowserType.CLOUD_CHROME.toString())) {
+            return createBrowserStackDriver("chrome");
+        } else if (browserName.equalsIgnoreCase(BrowserType.CLOUD_FIREFOX.toString())) {
+            return createBrowserStackDriver("firefox");
+        } else if (browserName.equalsIgnoreCase(BrowserType.CLOUD_IE.toString())) {
+            return createBrowserStackDriver("internet explorer");
+        } else if (browserName.equalsIgnoreCase(BrowserType.GRID_CHROME.toString())) {
+            return createGridDriver("chrome");
+        } else if (browserName.equalsIgnoreCase(BrowserType.GRID_FIREFOX.toString())) {
+            return createGridDriver("firefox");
+        } else if (browserName.equalsIgnoreCase(BrowserType.GRID_IE.toString())) {
+            return createGridDriver("internet explorer");
         }
         throw new IllegalArgumentException("Unsupported browser: " + browserName);
     }
@@ -150,7 +96,33 @@ public class DriverFactory {
     }
 
     private String resolveBrowserName() {
-        return System.getProperty(BROWSER_PROPERTY, BrowserType.CHROME.toString());
+        String executionMode = System.getProperty(EXECUTION_MODE_PROPERTY, "local").trim().toLowerCase(Locale.ROOT);
+        String browserName = System.getProperty(BROWSER_PROPERTY, BrowserType.CHROME.toString()).trim().toLowerCase(Locale.ROOT);
+
+        if ("grid".equals(executionMode)) {
+            if ("firefox".equals(browserName)) {
+                return BrowserType.GRID_FIREFOX.toString();
+            }
+            if ("ie".equals(browserName) || "internet explorer".equals(browserName)) {
+                return BrowserType.GRID_IE.toString();
+            }
+            return BrowserType.GRID_CHROME.toString();
+        }
+
+        if ("cloud".equals(executionMode) || "browserstack".equals(executionMode)) {
+            if ("firefox".equals(browserName)) {
+                return BrowserType.CLOUD_FIREFOX.toString();
+            }
+            if ("ie".equals(browserName) || "internet explorer".equals(browserName)) {
+                return BrowserType.CLOUD_IE.toString();
+            }
+            return BrowserType.CLOUD_CHROME.toString();
+        }
+
+        if ("firefox".equals(browserName)) {
+            return BrowserType.FIREFOX.toString();
+        }
+        return BrowserType.CHROME.toString();
     }
 
     private boolean isHeadlessEnabled() {
@@ -182,6 +154,65 @@ public class DriverFactory {
         return options;
     }
 
+    private WebDriver createGridDriver(String browserName) {
+        try {
+            return new RemoteWebDriver(toUrl(System.getProperty(GRID_URL_PROPERTY, DEFAULT_GRID_URL)), buildRemoteOptions(browserName));
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException("Unable to create grid driver for browser: " + browserName, e);
+        }
+    }
+
+    private WebDriver createBrowserStackDriver(String browserName) {
+        String username = System.getProperty(BROWSERSTACK_USERNAME_PROPERTY, "").trim();
+        String accessKey = System.getProperty(BROWSERSTACK_ACCESS_KEY_PROPERTY, "").trim();
+        String browserStackUrl = System.getProperty(BROWSERSTACK_URL_PROPERTY, DEFAULT_BROWSERSTACK_URL).trim();
+
+        if (username.isEmpty() || accessKey.isEmpty()) {
+            throw new IllegalStateException("BrowserStack credentials are required. Set -Dbrowserstack.username and -Dbrowserstack.accessKey.");
+        }
+
+        String remoteUrl = "https://" + username + ":" + accessKey + "@" + browserStackUrl;
+
+        try {
+            return new RemoteWebDriver(toUrl(remoteUrl), buildRemoteOptions(browserName));
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException("Unable to create BrowserStack driver for browser: " + browserName, e);
+        }
+    }
+
+    private org.openqa.selenium.MutableCapabilities buildRemoteOptions(String browserName) {
+        if ("firefox".equalsIgnoreCase(browserName)) {
+            FirefoxOptions options = buildFirefoxOptions();
+            applyRemoteMetadata(options, "firefox");
+            return options;
+        }
+
+        if ("internet explorer".equalsIgnoreCase(browserName) || "ie".equalsIgnoreCase(browserName)) {
+            org.openqa.selenium.MutableCapabilities capabilities = new org.openqa.selenium.MutableCapabilities();
+            capabilities.setCapability("browserName", "internet explorer");
+            applyRemoteMetadata(capabilities, "internet explorer");
+            return capabilities;
+        }
+
+        ChromeOptions options = buildChromeOptions();
+        applyRemoteMetadata(options, "chrome");
+        return options;
+    }
+
+    private void applyRemoteMetadata(org.openqa.selenium.MutableCapabilities capabilities, String browserName) {
+        capabilities.setCapability("browserName", browserName);
+
+        String platformName = System.getProperty(PLATFORM_NAME_PROPERTY, "").trim();
+        if (!platformName.isEmpty()) {
+            capabilities.setCapability("platformName", platformName);
+        }
+
+        String browserVersion = System.getProperty(BROWSER_VERSION_PROPERTY, "").trim();
+        if (!browserVersion.isEmpty()) {
+            capabilities.setCapability("browserVersion", browserVersion);
+        }
+    }
+
     ThreadLocal<WebDriver> driver = new ThreadLocal<WebDriver>() // thread local driver object for webdriver
     {
         @Override
@@ -196,7 +227,10 @@ public class DriverFactory {
     }
     public void removeDriver() // Quits the driver and closes the browser
     {
-        driver.get().quit();
+        WebDriver currentDriver = driver.get();
+        if (currentDriver != null) {
+            currentDriver.quit();
+        }
         driver.remove();
     }
 }
