@@ -1,0 +1,202 @@
+stages:
+  - test
+  - report
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository/
+
+# JUnit Headless Job
+junit-headless:
+  stage: test
+  image: maven:3.9.2-eclipse-temurin-17
+  before_script:
+    - apt-get update && apt-get install -y chromium-browser
+    - echo "Java version:"
+    - java -version
+    - echo "Maven version:"
+    - mvn -version
+    - echo "Chrome version:"
+    - chromium-browser --version || chrome --version || true
+  script:
+    - echo "Running JUnit tests in headless Chrome..."
+    - mvn -B clean test -Dbrowser=chrome -Dheadless=true
+  after_script:
+    - mvn -B -U allure:report
+  artifacts:
+    when: always
+    paths:
+      - target/allure-results/junit
+      - target/site/allure-maven/junit
+      - target/surefire-reports
+    reports:
+      junit: target/surefire-reports/TEST-*.xml
+    expire_in: 30 days
+  retry:
+    max: 1
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+  only:
+    - merge_requests
+    - development
+    - main
+
+# TestNG Headless Job
+testng-headless:
+  stage: test
+  image: maven:3.9.2-eclipse-temurin-17
+  before_script:
+    - apt-get update && apt-get install -y chromium-browser
+    - echo "Java version:"
+    - java -version
+    - echo "Maven version:"
+    - mvn -version
+    - echo "Chrome version:"
+    - chromium-browser --version || chrome --version || true
+  script:
+    - echo "Running TestNG tests in headless Chrome..."
+    - mvn -B -Ptestng-runner clean test -Dbrowser=chrome -Dheadless=true
+  after_script:
+    - mvn -B -U -Ptestng-runner allure:report
+  artifacts:
+    when: always
+    paths:
+      - target/allure-results/testng
+      - target/site/allure-maven/testng
+      - target/surefire-reports
+    reports:
+      junit: target/surefire-reports/TEST-*.xml
+    expire_in: 30 days
+  retry:
+    max: 1
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+  only:
+    - merge_requests
+    - development
+    - main
+
+# GitLab Pages Deployment
+pages:
+  stage: report
+  image: alpine:latest
+  dependencies:
+    - junit-headless
+    - testng-headless
+  script:
+    - mkdir -p public/junit public/testng
+    - cp -r target/site/allure-maven/junit/* public/junit/ 2>/dev/null || true
+    - cp -r target/site/allure-maven/testng/* public/testng/ 2>/dev/null || true
+    - |
+      cat > public/index.html << 'EOF'
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Selenium Cucumber BDD Framework Reports</title>
+        <style>
+          :root {
+            color-scheme: light;
+            --bg: #f4f0e8;
+            --panel: #fffaf1;
+            --ink: #1f2937;
+            --muted: #6b7280;
+            --accent: #a13d2d;
+            --accent-2: #1f5f8b;
+            --border: #e7dccb;
+          }
+          * { box-sizing: border-box; }
+          body {
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            background: radial-gradient(circle at top, #fff7ea 0%, var(--bg) 55%, #efe6d8 100%);
+            color: var(--ink);
+          }
+          main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 56px 24px 72px;
+          }
+          h1 {
+            margin: 0 0 12px;
+            font-size: clamp(2rem, 4vw, 3.4rem);
+          }
+          p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            line-height: 1.6;
+          }
+          .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin-top: 32px;
+          }
+          .card {
+            display: block;
+            padding: 24px;
+            border-radius: 18px;
+            text-decoration: none;
+            color: inherit;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            box-shadow: 0 16px 40px rgba(84, 54, 26, 0.08);
+          }
+          .card:hover {
+            transform: translateY(-2px);
+            transition: transform 160ms ease;
+          }
+          .eyebrow {
+            font-family: "Courier New", monospace;
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent-2);
+          }
+          .card h2 {
+            margin: 10px 0 8px;
+            font-size: 1.5rem;
+          }
+          .card span {
+            color: var(--accent);
+            font-weight: 700;
+          }
+        </style>
+      </head>
+      <body>
+        <main>
+          <div class="eyebrow">Selenium Cucumber BDD Framework</div>
+          <h1>Published Allure Reports</h1>
+          <p>Each pipeline run publishes the latest JUnit and TestNG Allure HTML reports here. Open the report you need below.</p>
+          <section class="grid">
+            <a class="card" href="./junit/">
+              <div class="eyebrow">Default runner</div>
+              <h2>JUnit Report</h2>
+              <p>Headless Chrome execution of the default JUnit Cucumber runner.</p>
+              <span>Open JUnit report</span>
+            </a>
+            <a class="card" href="./testng/">
+              <div class="eyebrow">Profile: testng-runner</div>
+              <h2>TestNG Report</h2>
+              <p>Headless Chrome execution of the TestNG Cucumber runner used for CI.</p>
+              <span>Open TestNG report</span>
+            </a>
+          </section>
+        </main>
+      </body>
+      </html>
+      EOF
+  artifacts:
+    paths:
+      - public
+    expire_in: 90 days
+  only:
+    - development
+    - main
+  when: always
