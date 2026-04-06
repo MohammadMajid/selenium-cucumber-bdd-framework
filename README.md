@@ -144,6 +144,191 @@ mvn clean test -Ptestng-runner \
   -Dbrowser.version=latest
 ```
 
+### Execute Jenkinsfile: Complete Step-by-Step Guide
+
+This repo includes a ready-to-use `Jenkinsfile` at the project root and a custom Jenkins Docker image with all required tooling.
+
+#### Prerequisites
+
+1. **Docker and Colima** (on macOS):
+   ```bash
+   brew install colima docker
+   ```
+
+2. **Repository cloned** to your local machine with all files including `Jenkinsfile`, `Dockerfile.jenkins`, and `docker-compose.yml`.
+
+#### Step 1: Start Docker VM
+
+```bash
+colima start
+```
+
+#### Step 2: Start Jenkins Controller
+
+Using the custom Jenkins image with Docker tooling preinstalled:
+
+```bash
+docker-compose --profile jenkins up -d --build jenkins
+```
+
+For standalone docker-compose:
+
+```bash
+docker-compose --profile jenkins up -d --build jenkins
+```
+
+**Verification**: Check Jenkins is running:
+```bash
+docker ps | grep jenkins
+```
+
+#### Step 3: Unlock Jenkins (First Time Only)
+
+1. Get the initial admin password:
+   ```bash
+   docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+   ```
+   This outputs a token like: `b073197d8c2342a1bf77b1e1a7b499e5`
+
+2. Open Jenkins in your browser:
+   ```
+   http://localhost:8081
+   ```
+
+3. Paste the token into the **Administrator password** field and click **Continue**.
+
+4. Click **Install suggested plugins** (wait 2-3 minutes for installation).
+
+5. Create your first admin user:
+   - Username: `admin`
+   - Password: (your choice)
+   - Full name: (your choice)
+   - Email: (your choice)
+   - Click **Save and Continue**
+
+6. Click **Save and Finish**.
+
+#### Step 4: Create a Pipeline Job
+
+1. In Jenkins dashboard, click **New Item**.
+
+2. Enter Job name: `ui-grid-tests` (or any name you prefer).
+
+3. Select **Pipeline** and click **OK**.
+
+4. In the **Pipeline** section, configure:
+   - **Definition**: select **Pipeline script from SCM**
+   - **SCM**: select **Git**
+   - **Repository URL**: paste your repository URL
+     ```
+     https://github.com/your-org/your-repo.git
+     ```
+     or for local filesystem (macOS):
+     ```
+     file:///Users/nafmjd/Documents/sample-work/Selenium Cucumber BDD Framework
+     ```
+   - **Branch**: `*/main` (or your branch)
+   - **Script Path**: `Jenkinsfile` (default, keep as-is)
+
+5. Click **Save**.
+
+#### Step 5: Execute the Pipeline
+
+1. In the job page, click **Build Now**.
+
+2. Monitor the build progress:
+   - Click the build number on the left (e.g., `#1`)
+   - Click **Console Output** to watch logs in real-time
+   - Pipeline stages and status appear as execution progresses
+
+#### What the Pipeline Does
+
+The `Jenkinsfile` automatically:
+
+1. **Checks out** your repository code
+2. **Starts Docker containers** for Selenium Grid, app, and test runner:
+   ```
+   docker-compose --profile tests up
+   ```
+3. **Runs TestNG + Cucumber tests** in the test-runner container with:
+   - Chrome browser (headless)
+   - Gridified execution against Selenium Hub
+   - 3 parallel threads by default (configurable)
+4. **Publishes test results**:
+   - JUnit XML parsed and displayed in Jenkins UI
+   - Test trends plotted over builds
+5. **Archives all artifacts** from `target/` directory:
+   - Cucumber HTML/JSON reports
+   - Allure results
+   - Surefire reports
+6. **Cleans up** all running containers at the end (success or failure)
+
+#### Step 6: Review Test Results
+
+After the pipeline completes:
+
+1. **Test Report** tab shows TestNG/JUnit results
+2. **Artifacts** tab contains downloadable test reports
+3. **Console Output** shows raw logs and errors (for debugging failures)
+
+To download Cucumber HTML report:
+- Click **Artifacts** → `cucumber-results/junit/cucumber-report.html`
+
+To generate Allure visual report (optional, on your machine):
+```bash
+mvn allure:report
+open target/site/allure-report/index.html
+```
+
+#### Jenkins Runtime Details
+
+- **Java Version**: OpenJDK 21 (LTS) — no Java 17 EOL warnings
+- **Docker Socket**: Mounted from host to Jenkins container for compose commands
+- **Workspace**: Repository mounted at `/workspace` inside Jenkins container
+- **Persistence**: Jenkins home stored in `jenkins_home` Docker volume (survives container restarts)
+
+#### Troubleshooting
+
+**Build fails with `docker-compose: command not found`**
+- Rebuild Jenkins image:
+  ```bash
+  docker-compose --profile jenkins up -d --build jenkins
+  ```
+
+**Permission denied on `/var/run/docker.sock`**
+- Restart Jenkins:
+  ```bash
+  docker-compose --profile jenkins restart jenkins
+  ```
+
+**Grid containers won't start**
+- Verify Colima is running:
+  ```bash
+  colima status
+  ```
+- Check host Docker socket (should exist):
+  ```bash
+  ls -l /var/run/docker.sock
+  ```
+
+**Want to run tests locally instead?**
+- Run directly without Jenkins:
+  ```bash
+  docker-compose --profile tests up --build --abort-on-container-exit test-runner
+  ```
+
+---
+
+### Grid + TestNG Architecture
+
+The custom Jenkins image includes both `docker` and `docker-compose`, allowing Jenkinsfile to orchestrate the full test stack:
+
+- **Selenium Hub**: Central test node router on `http://selenium-hub:4444`
+- **Chrome Node**: Runs tests in headless Chrome
+- **App Container**: Serves test application on `http://app:80`
+- **Test Runner**: Maven container running TestNG + Cucumber
+- **Maven Cache**: Persistent volume to avoid re-downloading dependencies
+
 ## Parallel Execution Notes
 
 * TestNG is the recommended runner for enterprise parallel execution in this repo.

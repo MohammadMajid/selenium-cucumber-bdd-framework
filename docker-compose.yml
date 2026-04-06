@@ -94,5 +94,25 @@ services:
       - .:/workspace
       - maven-cache:/root/.m2
 
+  jenkins:
+    profiles:
+      - jenkins
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    image: seleniumcucumberbddframework/jenkins:lts-jdk21-docker
+    container_name: jenkins
+    user: root
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    environment:
+      JENKINS_OPTS: --httpPort=8080
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/workspace
+
 volumes:
   maven-cache:
+  jenkins_home:
