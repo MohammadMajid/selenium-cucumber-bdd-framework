@@ -14,13 +14,17 @@ junit-headless:
   stage: test
   image: maven:3.9.2-eclipse-temurin-17
   before_script:
-    - apt-get update && apt-get install -y chromium chromium-driver
+    - apt-get update
+    - apt-get install -y wget gnupg2 curl
+    - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+    - sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+    - apt-get update && apt-get install -y google-chrome-stable
     - echo "Java version:"
     - java -version
     - echo "Maven version:"
     - mvn -version
     - echo "Chrome version:"
-    - chromium --version || true
+    - google-chrome --version
   script:
     - echo "Running JUnit tests in headless Chrome..."
     - mvn -B clean test -Dbrowser=chrome -Dheadless=true -Dchrome.args=--no-sandbox
@@ -50,13 +54,17 @@ testng-headless:
   stage: test
   image: maven:3.9.2-eclipse-temurin-17
   before_script:
-    - apt-get update && apt-get install -y chromium chromium-driver
+    - apt-get update
+    - apt-get install -y wget gnupg2 curl
+    - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+    - sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+    - apt-get update && apt-get install -y google-chrome-stable
     - echo "Java version:"
     - java -version
     - echo "Maven version:"
     - mvn -version
     - echo "Chrome version:"
-    - chromium --version || true
+    - google-chrome --version
   script:
     - echo "Running TestNG tests in headless Chrome..."
     - mvn -B -Ptestng-runner clean test -Dbrowser=chrome -Dheadless=true -Dchrome.args=--no-sandbox
