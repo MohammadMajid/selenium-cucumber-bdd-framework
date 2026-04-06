@@ -1,6 +1,7 @@
 # Selenium Cucumber BDD Automation Framework
 
-🔃[Build Status](https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions)
+[![GitHub Actions](https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions/workflows/ui-test-reports.yml/badge.svg)](https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions/workflows/ui-test-reports.yml)
+[![GitLab CI](https://gitlab.com/mmajid.automation/bddwithselenium/badges/main/pipeline.svg)](https://gitlab.com/mmajid.automation/bddwithselenium/-/pipelines)
 
 ## Project Overview
 
@@ -12,7 +13,7 @@ This is an **enterprise-grade test automation framework** built using:
 * Maven
 * Docker Compose
 * Selenium Grid 4
-* GitHub Actions (CI/CD)
+* GitHub Actions & GitLab CI/CD (Dual CI support)
 * Allure Reporting
 
 The framework is designed to support **scalable UI automation**, **BDD practices**, and **continuous testing pipelines**.
@@ -191,9 +192,36 @@ Generated under `target/cucumber-results/` and `target/cucumber-report/`.
 
 ## CI/CD
 
-GitHub Actions is already configured to run the suite and publish Allure reports:
+The framework supports two CI/CD platforms with identical pipelines.
+
+### GitHub Actions
+
+Runs parallel JUnit and TestNG jobs and publishes Allure reports to GitHub Pages:
 
 https://github.com/MohammadMajid/selenium-cucumber-bdd-framework/actions/workflows/ui-test-reports.yml
+
+### GitLab CI/CD
+
+Defined in `.gitlab-ci.yml` at the repository root. Mirrors the GitHub Actions workflow:
+
+| Stage | Jobs | Description |
+|---|---|---|
+| `test` | `junit-headless` | Runs JUnit tests in headless Chrome, generates Allure report |
+| `test` | `testng-headless` | Runs TestNG tests in headless Chrome (`-Ptestng-runner`), generates Allure report |
+| `report` | `pages` | Copies Allure HTML into `public/` and deploys to GitLab Pages |
+
+Both test jobs run in **parallel** on `maven:3.9.2-eclipse-temurin-17`, install Chromium, and upload Allure results as artifacts (retained 30 days).
+
+**Pipeline:**
+https://gitlab.com/mmajid.automation/bddwithselenium/-/pipelines
+
+**Allure Reports (GitLab Pages):**
+https://mmajid.automation.gitlab.io/bddwithselenium/
+
+#### Trigger branches
+- `main`
+- `development`
+- Merge requests
 
 ## Author
 
