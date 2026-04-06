@@ -6,7 +6,10 @@ import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Wait;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -14,11 +17,11 @@ import java.util.function.Predicate;
  * Created by Mohammad Majid on 4/11/2020
  */
 
-public class SeleniumUtils {
+public abstract class SeleniumUtils {
 
     public static final int DEFAULT_WAIT_TIME = 10;
 
-    public SeleniumUtils(){
+    protected SeleniumUtils(){
     }
 
     protected WebDriver driver() {
@@ -50,41 +53,33 @@ public class SeleniumUtils {
 
         WebDriver currentDriver = driver();
         currentDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(100));
+        try {
+            Wait<WebDriver> wait = new FluentWait<WebDriver>(currentDriver)
+                    .withTimeout(Duration.ofSeconds(timeToWaitInSec))
+                    .pollingEvery(Duration.ofMillis(100))
+                    .ignoring(NoSuchElementException.class);
 
-        Wait<WebDriver> wait = new FluentWait<WebDriver>(currentDriver)
-                .withTimeout(Duration.ofSeconds(timeToWaitInSec))
-                .pollingEvery(Duration.ofMillis(100))
-                .ignoring(NoSuchElementException.class);
-
-        WebElement foo = wait.until(webDriver -> {
-            WebElement element = webDriver.findElement(locator);
-            if (element != null && element.isDisplayed()) {
-                return element;
-            }
-            return null;
-        });
-
-        currentDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(DEFAULT_WAIT_TIME));
-        return foo;
+            return wait.until(webDriver -> {
+                WebElement element = webDriver.findElement(locator);
+                if (element != null && element.isDisplayed()) {
+                    return element;
+                }
+                return null;
+            });
+        } finally {
+            currentDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(DEFAULT_WAIT_TIME));
+        }
     }
 
     public WebElement textToBePresentInElementLocated(By by, String textToWait, int timeToWaitInSec){
-        Boolean found = false;
-        WebElement element = null;
-        try {
-            element = driver().findElement(by);
-            found = fluentWait(timeToWaitInSec).until(ExpectedConditions.textToBePresentInElementLocated(by, textToWait));
-        }
-        catch (Exception ex){
-            ex.printStackTrace();
+        Boolean found = fluentWait(timeToWaitInSec)
+                .until(ExpectedConditions.textToBePresentInElementLocated(by, textToWait));
+
+        if (!found) {
+            throw new TimeoutException("Element with the text '" + textToWait + "' was not found");
         }
 
-        if(!found) {
-            System.out.println("Element with the text '" + textToWait + "' not found");
-            return  null;
-        }
-
-        return element;
+        return driver().findElement(by);
     }
 
 
@@ -147,10 +142,14 @@ public class SeleniumUtils {
     }
 
     public String getLastWindowHandle(){
-        Set<String> winHdls = driver().getWindowHandles();
-        return winHdls.toArray()[winHdls.size() - 1].toString();
+        List<String> winHdls = getOrderedWindowHandles();
+        if (winHdls.isEmpty()) {
+            throw new RuntimeException("No browser window handles found.");
+        }
+        return winHdls.get(winHdls.size() - 1);
     }
 
+    @Deprecated
     public String getLastWIndowHandle(){
         return getLastWindowHandle();
     }
@@ -162,6 +161,9 @@ public class SeleniumUtils {
     public void closeLastWindow(){
         switchToLastWindow();
         driver().close();
+        if (!driver().getWindowHandles().isEmpty()) {
+            switchToLastWindow();
+        }
     }
 
     public void switchToWindow(String winTitle){
@@ -183,13 +185,17 @@ public class SeleniumUtils {
     public void closeWindow(String title){
         switchToWindow(title);
         driver().close();
-        switchToLastWindow();
+        if (!driver().getWindowHandles().isEmpty()) {
+            switchToLastWindow();
+        }
     }
 
     public void closeWindow(int winIndex){
         switchToWindow(winIndex);
         driver().close();
-        switchToLastWindow();
+        if (!driver().getWindowHandles().isEmpty()) {
+            switchToLastWindow();
+        }
     }
 
     public void closeAllOpenWindowExceptCurrent(){
@@ -206,13 +212,19 @@ public class SeleniumUtils {
     }
 
     private String getWindowHandle(int winIndex) {
-        Set<String> winHdls = driver().getWindowHandles();
+        List<String> winHdls = getOrderedWindowHandles();
 
         if (winIndex >= 0 && winIndex < winHdls.size()) {
-            return winHdls.toArray()[winIndex].toString();
+            return winHdls.get(winIndex);
         }
 
         throw new RuntimeException("Window with the index '" + winIndex + "' not found.");
+    }
+
+    private List<String> getOrderedWindowHandles() {
+        List<String> handles = new ArrayList<>(driver().getWindowHandles());
+        Collections.sort(handles);
+        return handles;
     }
 
     private void switchToWindowMatching(Predicate<WebDriver> matcher, String errorMessage) {
